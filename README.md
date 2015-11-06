@@ -1,0 +1,2 @@
+# ProjectManager
+This project serves as a testing ground for applying CQRS-DDD approach to designing SaaS solutions. At this moment it is a simplistic application incorporating next to zero business logic, no integration with other systems and extremely simplistic authentication protocol using only unencrypted password and username for per-request authorization for API. At the top level this application provides a JSON RESTful API that can be consumed by any frontend be it an Web SPA or mobile clients.
