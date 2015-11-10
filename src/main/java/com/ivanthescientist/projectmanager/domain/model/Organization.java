@@ -1,6 +1,8 @@
 package com.ivanthescientist.projectmanager.domain.model;
 
 import com.ivanthescientist.projectmanager.domain.DomainException;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.List;
@@ -16,6 +18,7 @@ public class Organization {
     protected long id;
 
     @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     protected User owner;
 
     @Column

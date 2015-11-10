@@ -8,6 +8,7 @@ import com.ivanthescientist.projectmanager.infrastructure.security.SimpleAuthent
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +24,7 @@ public class UserController {
         return userCommandHandler.registerUser(command);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @RequestMapping(path = "/users/me", method = RequestMethod.GET)
     public User currentUser(@AuthenticationPrincipal SimpleAuthenticationUser user)
     {
@@ -39,6 +41,11 @@ public class UserController {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public void databaseConflictHandler()
     {
-        
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public void notFoundExceptionHandler()
+    {
     }
 }

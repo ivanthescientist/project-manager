@@ -12,15 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.junit.Assert.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
@@ -43,6 +42,9 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired
     WebApplicationContext context;
 
+    @Autowired
+    private FilterChainProxy springSecurityFilterChain;
+
     MockMvc mockMvc;
 
 
@@ -50,7 +52,10 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
     public void setUp() {
         userRepository.deleteAll();
         organizationRepository.deleteAll();
-        mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .addFilter(springSecurityFilterChain)
+                .build();
     }
 
     @Test
@@ -113,9 +118,9 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
 
         mockMvc.perform(get("/users/me")
                 .header("username", usernameUser)
-                .header("password"))
+                .header("password", passwordUser))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$username").value(usernameUser));
+                .andExpect(jsonPath("$.email").value(usernameUser));
     }
 }
 
