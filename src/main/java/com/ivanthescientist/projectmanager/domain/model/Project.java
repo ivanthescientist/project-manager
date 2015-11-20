@@ -3,7 +3,10 @@ package com.ivanthescientist.projectmanager.domain.model;
 import com.ivanthescientist.projectmanager.domain.DomainException;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "projects")
@@ -23,11 +26,11 @@ public class Project {
     @ManyToOne(targetEntity = Organization.class)
     protected Organization organization;
 
-    @OneToMany(targetEntity = User.class)
-    protected List<User> participants;
+    @OneToMany(targetEntity = User.class, fetch = FetchType.EAGER)
+    protected List<User> participants = new ArrayList<>();
 
     @OneToMany(targetEntity = Task.class, mappedBy = "project")
-    protected List<Task> tasks;
+    protected List<Task> tasks = new ArrayList<>();
 
     public Project()
     {
@@ -38,6 +41,12 @@ public class Project {
         this.name = name;
         this.description = description;
         this.organization = organization;
+    }
+
+    public void updateInfo(String name, String description)
+    {
+        this.name = name;
+        this.description = description;
     }
 
     public long getId() {
@@ -78,8 +87,17 @@ public class Project {
 
     public void removeParticipant(User user)
     {
-        if(this.participants.contains(user)) {
+        if(!this.participants.contains(user)) {
             throw new DomainException("Not a participant");
+        }
+
+        boolean hasTasks = !this.tasks.stream()
+                .filter(task -> task.getAssignee().equals(user) && task.isInProgress())
+                .collect(Collectors.toList())
+                .isEmpty();
+
+        if(hasTasks) {
+            throw new DomainException("User has ongoing tasks");
         }
 
         participants.remove(user);

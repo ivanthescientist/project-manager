@@ -1,6 +1,9 @@
 package com.ivanthescientist.projectmanager;
 
+import com.ivanthescientist.projectmanager.application.command.AddMemberCommand;
 import com.ivanthescientist.projectmanager.application.command.CreateOrganizationCommand;
+import com.ivanthescientist.projectmanager.application.command.RemoveMemberCommand;
+import com.ivanthescientist.projectmanager.application.command.UpdateOrganizationCommand;
 import com.ivanthescientist.projectmanager.domain.model.Organization;
 import com.ivanthescientist.projectmanager.domain.model.User;
 import com.ivanthescientist.projectmanager.infrastructure.repository.OrganizationRepository;
@@ -58,31 +61,30 @@ public class OrganizationControllerIntegrationTest extends BaseIntegrationTest {
 
     @Before
     public void setUp() {
-        userRepository.deleteAll();
         organizationRepository.deleteAll();
+        userRepository.deleteAll();
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(springSecurity())
                 .addFilter(filterChain)
                 .build();
 
-        user = new User(usernameUser, passwordUser, new String[]{"ROLE_USER"}, null);
+        user = new User(usernameUser, passwordUser, new String[]{"ROLE_USER"});
+
         organizationManager = new User(usernameOrganizationManager,
                 passwordOrganizationManager,
-                new String[] {"ROLE_USER", "ROLE_ORGANIZATION_ADMIN"},
-                null);
+                new String[] {"ROLE_USER", "ROLE_ORGANIZATION_ADMIN"});
 
         organization = new Organization(organizationManager, organizationName, organizationDescription);
 
         solutionAdmin = new User(usernameSolutionAdmin,
                 passwordSolutionAdmin,
-                new String[] {"ROLE_USER", "ROLE_SOLUTION_ADMIN"},
-                null);
+                new String[] {"ROLE_USER", "ROLE_SOLUTION_ADMIN"});
 
-        userRepository.saveAndFlush(user);
-        userRepository.saveAndFlush(organizationManager);
-        organizationRepository.saveAndFlush(organization);
-        userRepository.saveAndFlush(solutionAdmin);
+        user = userRepository.saveAndFlush(user);
+        organizationManager = userRepository.saveAndFlush(organizationManager);
+        organization = organizationRepository.saveAndFlush(organization);
+        solutionAdmin = userRepository.saveAndFlush(solutionAdmin);
     }
 
     @Test
@@ -103,42 +105,63 @@ public class OrganizationControllerIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    public void testCreateOrganizationAsUser() throws Exception
-    {
-        CreateOrganizationCommand command = new CreateOrganizationCommand();
-        command.name = organizationName;
-        command.description = organizationDescription;
-
-        mockMvc
-                .perform(
-                        authenticateAsUser(post("/organizations/"), user)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(toJson(command))
-                )
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
     public void testUpdateOrganization() throws Exception
     {
+        String expectedName = "some new name";
+        String expectedDescription = "some new description";
+        UpdateOrganizationCommand command = new UpdateOrganizationCommand();
+        command.name = expectedName;
+        command.description = expectedDescription;
 
+        mockMvc
+                .perform(authenticateAsUser(put("/organizations/" + organization.getId()),
+                        organizationManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toJson(command))
+                ).andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(expectedName))
+                .andExpect(jsonPath("$.description").value(expectedDescription));
     }
 
     @Test
     public void testAddMemberToOrganization() throws Exception
     {
+        AddMemberCommand command = new AddMemberCommand();
+        command.organizationId = organization.getId();
+        command.userId = user.getId();
 
+        mockMvc
+                .perform(authenticateAsUser(post("/organizations/" + organization.getId() + "/members"),
+                        organizationManager)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toJson(command))
+                ).andExpect(status().isOk());
+
+        organization = organizationRepository.findOne(organization.getId());
+        assertTrue(organization.isMember(user));
     }
 
     @Test
     public void testRemoveMemberFromOrganization() throws Exception
     {
+        organization.addMember(user);
+        organizationRepository.saveAndFlush(organization);
 
+        mockMvc
+                .perform(authenticateAsUser(delete("/organizations/" + organization.getId()
+                        + "/members/" + user.getId()), organizationManager)
+                ).andExpect(status().isOk());
+
+        organization = organizationRepository.findOne(organization.getId());
+        assertFalse(organization.isMember(user));
     }
 
     @Test
     public void testRemoveNonMemberFromOrganization() throws Exception
     {
-
+        mockMvc
+                .perform(authenticateAsUser(delete("/organizations/" + organization.getId()
+                        + "/members/" + user.getId()), organizationManager)
+                ).andExpect(status().isBadRequest());
     }
 }

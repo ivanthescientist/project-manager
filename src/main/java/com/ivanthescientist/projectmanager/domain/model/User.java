@@ -24,23 +24,11 @@ public class User {
     @Column
     private HashSet<String> roles = new HashSet<>(0);
 
-    @ManyToOne(targetEntity = Organization.class)
-    protected Organization organization;
-
     public User() {}
-    public User(String email, String passwordHash, String[] roles, Organization organization) {
+    public User(String email, String passwordHash, String[] roles) {
         this.email = email;
         this.passwordHash = passwordHash;
         this.roles.addAll(Arrays.asList(roles));
-        this.organization = organization;
-    }
-
-    public void assignToOrganization(Organization organization) {
-        if(this.organization != null) {
-            throw new DomainException("User already assigned to organization");
-        }
-
-        this.organization = organization;
     }
 
     public long getId() {
@@ -57,5 +45,27 @@ public class User {
 
     public HashSet<String> getRoles() {
         return roles;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if(o == this) {
+            return  true;
+        }
+
+        if(o == null || !(o instanceof User)) {
+            return false;
+        }
+
+        User user = (User) o;
+
+        return this.getId() == user.getId();
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return (int) this.getId();
     }
 }

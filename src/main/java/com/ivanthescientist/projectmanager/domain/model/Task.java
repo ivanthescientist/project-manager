@@ -110,6 +110,11 @@ public class Task {
         this.status = TaskStatus.CLOSED;
     }
 
+    public User getAssignee()
+    {
+        return assignee;
+    }
+
     public enum TaskStatus {
         OPEN,
         IN_PROGRESS,

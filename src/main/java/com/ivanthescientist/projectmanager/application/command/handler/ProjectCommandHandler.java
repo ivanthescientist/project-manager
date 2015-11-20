@@ -3,6 +3,8 @@ package com.ivanthescientist.projectmanager.application.command.handler;
 
 import com.ivanthescientist.projectmanager.application.command.AddProjectParticipantCommand;
 import com.ivanthescientist.projectmanager.application.command.CreateProjectCommand;
+import com.ivanthescientist.projectmanager.application.command.RemoveProjectParticipantCommand;
+import com.ivanthescientist.projectmanager.application.command.UpdateProjectCommand;
 import com.ivanthescientist.projectmanager.domain.model.Organization;
 import com.ivanthescientist.projectmanager.domain.model.Project;
 import com.ivanthescientist.projectmanager.domain.model.User;
@@ -48,7 +50,7 @@ public class ProjectCommandHandler {
         return project.getParticipants();
     }
 
-    public List<User> removeParticipant(AddProjectParticipantCommand command)
+    public List<User> removeParticipant(RemoveProjectParticipantCommand command)
     {
         Project project = projectRepository.findOne(command.projectId);
         User participant = userRepository.findOne(command.userId);
@@ -58,5 +60,15 @@ public class ProjectCommandHandler {
         project = projectRepository.saveAndFlush(project);
 
         return project.getParticipants();
+    }
+
+    public Project updateProjectInfo(UpdateProjectCommand command)
+    {
+        Project project = projectRepository.findOne(command.projectId);
+        project.updateInfo(command.name, command.description);
+
+        project = projectRepository.saveAndFlush(project);
+
+        return project;
     }
 }

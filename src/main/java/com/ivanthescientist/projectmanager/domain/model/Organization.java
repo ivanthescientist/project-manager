@@ -5,6 +5,8 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,10 +30,10 @@ public class Organization {
     protected String description;
 
     @OneToMany(targetEntity = Project.class, mappedBy="organization")
-    protected List<Project> projects;
+    protected List<Project> projects = new ArrayList<>();
 
-    @OneToMany(targetEntity = User.class,mappedBy = "organization", fetch = FetchType.EAGER)
-    protected List<User> members;
+    @OneToMany(targetEntity = User.class, fetch = FetchType.EAGER)
+    protected List<User> members = new ArrayList<>();
 
     public Organization() {}
 

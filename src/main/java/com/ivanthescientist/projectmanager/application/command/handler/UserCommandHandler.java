@@ -25,16 +25,18 @@ public class UserCommandHandler {
     public User registerUser(RegisterUserCommand command) {
 
         Organization organization = organizationRepository.findOne(command.organizationId);
-        User user = new User(command.email, passwordEncoder.encode(command.password), new String[] {"ROLE_USER"}, organization);
+        User user = new User(command.email, passwordEncoder.encode(command.password), new String[] {"ROLE_USER"});
 
-        user = userRepository.saveAndFlush(user);
+        user = userRepository.save(user);
+        organization.addMember(user);
+        organizationRepository.saveAndFlush(organization);
 
         return  user;
     }
 
     public User registerOrganizationOwner(RegisterOrganizationOwnerCommand command) {
         User user = new User(command.email, passwordEncoder.encode(command.password),
-                new String[] {"ROLE_USER", "ROLE_ORGANIZATION_ADMIN"}, null);
+                new String[] {"ROLE_USER", "ROLE_ORGANIZATION_ADMIN"});
 
         user = userRepository.saveAndFlush(user);
 

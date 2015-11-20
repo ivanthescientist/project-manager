@@ -5,17 +5,20 @@ import com.ivanthescientist.projectmanager.application.command.CreateOrganizatio
 import com.ivanthescientist.projectmanager.application.command.RemoveMemberCommand;
 import com.ivanthescientist.projectmanager.application.command.UpdateOrganizationCommand;
 import com.ivanthescientist.projectmanager.application.command.handler.OrganizationCommandHandler;
+import com.ivanthescientist.projectmanager.domain.DomainException;
 import com.ivanthescientist.projectmanager.domain.model.Organization;
 import com.ivanthescientist.projectmanager.domain.model.User;
 import com.ivanthescientist.projectmanager.infrastructure.repository.OrganizationRepository;
 import com.ivanthescientist.projectmanager.infrastructure.security.SimpleAuthenticationUser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @PreAuthorize("hasRole('ROLE_USER')")
 @RestController
@@ -115,5 +118,11 @@ public class OrganizationController {
         command.organizationId = organizationId;
 
         return commandHandler.updateOrganization(command);
+    }
+
+    @ExceptionHandler(value = DomainException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public void domainExceptionHandler(DomainException exception)
+    {
     }
 }

@@ -68,16 +68,14 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
         mockMvc.perform(
                 post("/users")
                     .content(toJson(command))
-                    .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+                    .contentType(MediaType.APPLICATION_JSON));
 
         assertNotNull(userRepository.findOneByEmail(usernameUser));
     }
 
     @Test
     public void testRegisterExistingUser() throws Exception {
-        User existingUser = new User(usernameUser, passwordUser, new String[] {"ROLE_USER"}, null);
+        User existingUser = new User(usernameUser, passwordUser, new String[] {"ROLE_USER"});
         userRepository.saveAndFlush(existingUser);
 
         RegisterUserCommand command = new RegisterUserCommand();
@@ -113,7 +111,7 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     public void testLoginWithExistingUser() throws Exception
     {
-        User user = new User(usernameUser, passwordUser, new String[] {"ROLE_USER"}, null);
+        User user = new User(usernameUser, passwordUser, new String[] {"ROLE_USER"});
         userRepository.saveAndFlush(user);
 
         mockMvc.perform(get("/users/me")
