@@ -82,6 +82,10 @@ public class Project {
             throw new DomainException("Already participant");
         }
 
+        if(!organization.isMember(user)) {
+            throw new DomainException("User does not belong to project's organization");
+        }
+
         participants.add(user);
     }
 

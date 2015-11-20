@@ -83,6 +83,7 @@ public class ProjectControllerIntegrationTest extends BaseIntegrationTest {
                 new String[]{"ROLE_USER", "ROLE_ORGANIZATION_ADMIN"});
 
         organization = new Organization(organizationManager, organizationName, organizationDescription);
+        organization.addMember(user);
 
         project = new Project(existingProjectName, existingProjectDescription, organization);
 
