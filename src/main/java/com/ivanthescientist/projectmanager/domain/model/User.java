@@ -1,6 +1,7 @@
 package com.ivanthescientist.projectmanager.domain.model;
 
 import com.ivanthescientist.projectmanager.domain.DomainException;
+import com.ivanthescientist.projectmanager.domain.SecuredEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "users")
 @Inheritance
-public class User implements UserDetails {
+public class User implements UserDetails, SecuredEntity {
     @Id
     @Column
     @GeneratedValue

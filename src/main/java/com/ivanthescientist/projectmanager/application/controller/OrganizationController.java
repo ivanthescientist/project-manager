@@ -9,6 +9,7 @@ import com.ivanthescientist.projectmanager.domain.DomainException;
 import com.ivanthescientist.projectmanager.domain.model.Organization;
 import com.ivanthescientist.projectmanager.domain.model.User;
 import com.ivanthescientist.projectmanager.infrastructure.repository.OrganizationRepository;
+import com.ivanthescientist.projectmanager.infrastructure.security.DomainSecurity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -17,6 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 
 @PreAuthorize("hasRole('ROLE_USER')")
 @RestController
@@ -28,7 +30,14 @@ public class OrganizationController {
     @Autowired
     OrganizationRepository repository;
 
+    @DomainSecurity
     @PreAuthorize("hasRole('ROLE_SOLUTION_ADMIN')")
+    @RequestMapping(value = "/organizations", method = RequestMethod.GET)
+    public List<Organization> getOrganizations() {
+        return repository.findAll();
+    }
+
+    @DomainSecurity
     @RequestMapping(value = "/organizations", method = RequestMethod.POST)
     public Organization createOrganization(@RequestBody CreateOrganizationCommand command,
                                            @AuthenticationPrincipal User user)
@@ -38,6 +47,7 @@ public class OrganizationController {
         return commandHandler.createOrganization(command);
     }
 
+    @DomainSecurity
     @RequestMapping(value = "/organizations/{id}")
     public Organization getOrganization(@PathVariable Long id,
                                         @AuthenticationPrincipal User user)
@@ -51,6 +61,7 @@ public class OrganizationController {
         return organization;
     }
 
+    @DomainSecurity
     @RequestMapping(value = "/organizations/{organizationId}/members", method = RequestMethod.GET)
     public List<User> getMembers(@PathVariable Long organizationId,
                                  @AuthenticationPrincipal User user)
@@ -64,6 +75,7 @@ public class OrganizationController {
         return organization.getMembers();
     }
 
+    @DomainSecurity
     @RequestMapping(value = "/organizations/{organizationId}/members", method = RequestMethod.POST)
     public List<User> addMember(@RequestBody AddMemberCommand command,
                                 @PathVariable Long organizationId,
@@ -79,6 +91,7 @@ public class OrganizationController {
         return commandHandler.addMember(command);
     }
 
+    @DomainSecurity
     @RequestMapping(value = "/organizations/{organizationId}/members/{memberId}", method = RequestMethod.DELETE)
     public List<User> removeMember(@PathVariable Long organizationId,
                                    @PathVariable Long memberId,
@@ -96,6 +109,7 @@ public class OrganizationController {
         return commandHandler.removeMember(command);
     }
 
+    @DomainSecurity
     @PreAuthorize("hasRole('ROLE_ORGANIZATION_ADMIN')")
     @RequestMapping(value = "/organizations/{organizationId}", method = RequestMethod.PUT)
     public Organization updateInfo(@PathVariable Long organizationId,

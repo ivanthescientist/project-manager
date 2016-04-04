@@ -1,6 +1,7 @@
 package com.ivanthescientist.projectmanager.domain.model;
 
 import com.ivanthescientist.projectmanager.domain.DomainException;
+import com.ivanthescientist.projectmanager.domain.SecuredEntity;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "projects")
-public class Project {
+public class Project implements SecuredEntity {
 
     @Id
     @Column

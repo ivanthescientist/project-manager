@@ -1,5 +1,6 @@
 package com.ivanthescientist.projectmanager.domain.model;
 
+import com.ivanthescientist.projectmanager.domain.SecuredEntity;
 import org.springframework.util.Assert;
 
 import javax.persistence.*;
@@ -7,7 +8,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "time_records")
-public class TimeRecord {
+public class TimeRecord implements SecuredEntity {
     @Id
     @Column
     @GeneratedValue

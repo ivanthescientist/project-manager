@@ -1,6 +1,7 @@
 package com.ivanthescientist.projectmanager.domain.model;
 
 import com.ivanthescientist.projectmanager.domain.DomainException;
+import com.ivanthescientist.projectmanager.domain.SecuredEntity;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -12,7 +13,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "organizations")
-public class Organization {
+public class Organization implements SecuredEntity {
 
     @Id
     @Column

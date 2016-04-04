@@ -50,9 +50,7 @@ public class SimpleAuthenticationFilter extends GenericFilterBean {
 
             Authentication authentication = manager.authenticate(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        } catch (Exception exception) {
-            logger.info("Failed attempted authentication: ", exception);
-        }
+        } catch (Exception ignored) {}
 
 
         filterChain.doFilter(servletRequest, servletResponse);

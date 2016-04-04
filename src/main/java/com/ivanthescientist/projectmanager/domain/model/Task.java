@@ -1,13 +1,14 @@
 package com.ivanthescientist.projectmanager.domain.model;
 
 import com.ivanthescientist.projectmanager.domain.DomainException;
+import com.ivanthescientist.projectmanager.domain.SecuredEntity;
 
 import javax.persistence.*;
 import java.util.List;
 
 @Entity
 @Table(name = "tasks")
-public class Task {
+public class Task implements SecuredEntity {
     @Id
     @Column
     @GeneratedValue

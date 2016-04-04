@@ -1,10 +1,12 @@
 package com.ivanthescientist.projectmanager.domain.model;
 
+import com.ivanthescientist.projectmanager.domain.SecuredEntity;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "material_records")
-public class MaterialRecord {
+public class MaterialRecord implements SecuredEntity {
     @Id
     @Column
     @GeneratedValue
