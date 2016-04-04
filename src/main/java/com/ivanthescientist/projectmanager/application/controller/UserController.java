@@ -4,12 +4,11 @@ import com.ivanthescientist.projectmanager.application.command.RegisterOrganizat
 import com.ivanthescientist.projectmanager.application.command.RegisterUserCommand;
 import com.ivanthescientist.projectmanager.application.command.handler.UserCommandHandler;
 import com.ivanthescientist.projectmanager.domain.model.User;
-import com.ivanthescientist.projectmanager.infrastructure.security.SimpleAuthenticationUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,9 +25,9 @@ public class UserController {
 
     @PreAuthorize("isAuthenticated()")
     @RequestMapping(path = "/users/me", method = RequestMethod.GET)
-    public User currentUser(@AuthenticationPrincipal SimpleAuthenticationUser user)
+    public User currentUser(@AuthenticationPrincipal User user)
     {
-        return user.getUser();
+        return user;
     }
 
     @RequestMapping(path = "/users/organization_owners", method = RequestMethod.POST)

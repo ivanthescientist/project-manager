@@ -1,5 +1,7 @@
 package com.ivanthescientist.projectmanager.infrastructure.security;
 
+import com.ivanthescientist.projectmanager.domain.model.User;
+import com.ivanthescientist.projectmanager.infrastructure.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,7 +17,7 @@ import org.springframework.util.Assert;
 public class SimpleAuthenticationProvider implements org.springframework.security.authentication.AuthenticationProvider {
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -25,16 +27,16 @@ public class SimpleAuthenticationProvider implements org.springframework.securit
         Assert.notNull(authentication.getPrincipal());
         Assert.notNull(authentication.getCredentials());
 
-        String username = (String)authentication.getPrincipal();
+        String email = (String)authentication.getPrincipal();
         String password = (String)authentication.getCredentials();
 
-        UserDetails details = userDetailsService.loadUserByUsername(username);
+        User user = userRepository.findOneByEmail(email);
 
-        if(!passwordEncoder.matches(password, details.getPassword())) {
-            throw new BadCredentialsException("SimpleAuthenticationProvider.");
+        if(!passwordEncoder.matches(password, user.getPassword())) {
+            throw new BadCredentialsException("Passwords don't match");
         }
 
-        return new UsernamePasswordAuthenticationToken(details, password, details.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(user, password, user.getAuthorities());
     }
 
     @Override

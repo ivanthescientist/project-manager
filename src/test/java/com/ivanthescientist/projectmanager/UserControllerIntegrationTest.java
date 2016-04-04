@@ -13,6 +13,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
 @WebIntegrationTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class UserControllerIntegrationTest extends BaseIntegrationTest {
 
     private static final String usernameUser = "user";
@@ -42,9 +44,6 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired
     WebApplicationContext context;
 
-    @Autowired
-    private FilterChainProxy springSecurityFilterChain;
-
     MockMvc mockMvc;
 
 
@@ -54,7 +53,6 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
         organizationRepository.deleteAll();
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
-                .addFilter(springSecurityFilterChain)
                 .build();
     }
 
@@ -75,7 +73,7 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     public void testRegisterExistingUser() throws Exception {
-        User existingUser = new User(usernameUser, passwordUser, new String[] {"ROLE_USER"});
+        User existingUser = new User(usernameUser, passwordUser, "ROLE_USER");
         userRepository.saveAndFlush(existingUser);
 
         RegisterUserCommand command = new RegisterUserCommand();
@@ -106,19 +104,6 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
         User user = userRepository.findOneByEmail(command.email);
         assertNotNull(user);
         assertFalse(organizationRepository.findAll().isEmpty());
-    }
-
-    @Test
-    public void testLoginWithExistingUser() throws Exception
-    {
-        User user = new User(usernameUser, passwordUser, new String[] {"ROLE_USER"});
-        userRepository.saveAndFlush(user);
-
-        mockMvc.perform(get("/users/me")
-                .header("username", usernameUser)
-                .header("password", passwordUser))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value(usernameUser));
     }
 }
 

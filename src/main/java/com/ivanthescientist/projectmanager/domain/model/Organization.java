@@ -17,23 +17,23 @@ public class Organization {
     @Id
     @Column
     @GeneratedValue
-    protected long id;
+    private long id;
 
     @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    protected User owner;
+    private User owner;
 
     @Column
-    protected String name;
+    private String name;
 
     @Column
-    protected String description;
+    private String description;
 
-    @OneToMany(targetEntity = Project.class, mappedBy="organization")
-    protected List<Project> projects = new ArrayList<>();
+    @OneToMany(targetEntity = Project.class, mappedBy="organization", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Project> projects = new ArrayList<>();
 
-    @OneToMany(targetEntity = User.class, fetch = FetchType.EAGER)
-    protected List<User> members = new ArrayList<>();
+    @OneToMany(targetEntity = User.class, fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.REMOVE)
+    private List<User> members = new ArrayList<>();
 
     public Organization() {}
 

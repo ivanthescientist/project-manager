@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.web.FilterChainProxy;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -25,23 +25,24 @@ import org.springframework.web.context.WebApplicationContext;
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = Application.class)
 @WebIntegrationTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class ProjectControllerIntegrationTest extends BaseIntegrationTest {
-    private static final String usernameUser = "user";
-    private static final String passwordUser = "1111";
-    private static final String usernameOrganizationManager = "user_manager";
-    private static final String passwordOrganizationManager = "1111";
-    private static final String organizationName = "Test organization";
-    private static final String organizationDescription = "Test organization description";
-    private static final String projectName = "Test project name";
-    private static final String projectDescription = "Test project description";
-    private static final String existingProjectName = "Existing Test project name";
-    private static final String existingProjectDescription = "Existing Test project description";
+    private static final String USERNAME_USER = "user";
+    private static final String PASSWORD_USER = "1111";
+    private static final String USERNAME_ORGANIZATION_MANAGER = "user_manager";
+    private static final String PASSWORD_ORGANIZATION_MANAGER = "1111";
+    private static final String ORGANIZATION_NAME = "Test organization";
+    private static final String ORGANIZATION_DESCRIPTION = "Test organization description";
+    private static final String PROJECT_NAME = "Test project name";
+    private static final String PROJECT_DESCRIPTION = "Test project description";
+    private static final String EXISTING_PROJECT_NAME = "Existing Test project name";
+    private static final String EXISTING_PROJECT_DESCRIPTION = "Existing Test project description";
+
     private User user;
     private User organizationManager;
     private Organization organization;
@@ -59,9 +60,6 @@ public class ProjectControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired
     WebApplicationContext context;
 
-    @Autowired
-    FilterChainProxy filterChain;
-
     MockMvc mockMvc;
 
     @Before
@@ -72,20 +70,18 @@ public class ProjectControllerIntegrationTest extends BaseIntegrationTest {
 
         mockMvc = MockMvcBuilders
                 .webAppContextSetup(context)
-                .apply(springSecurity())
-                .addFilter(filterChain)
                 .build();
 
-        user = new User(usernameUser, passwordUser, new String[]{"ROLE_USER"});
+        user = new User(USERNAME_USER, PASSWORD_USER, "ROLE_USER");
 
-        organizationManager = new User(usernameOrganizationManager,
-                passwordOrganizationManager,
-                new String[]{"ROLE_USER", "ROLE_ORGANIZATION_ADMIN"});
+        organizationManager = new User(USERNAME_ORGANIZATION_MANAGER,
+                PASSWORD_ORGANIZATION_MANAGER,
+                "ROLE_USER", "ROLE_ORGANIZATION_ADMIN");
 
-        organization = new Organization(organizationManager, organizationName, organizationDescription);
+        organization = new Organization(organizationManager, ORGANIZATION_NAME, ORGANIZATION_DESCRIPTION);
         organization.addMember(user);
 
-        project = new Project(existingProjectName, existingProjectDescription, organization);
+        project = new Project(EXISTING_PROJECT_NAME, EXISTING_PROJECT_DESCRIPTION, organization);
 
         user = userRepository.saveAndFlush(user);
         organizationManager = userRepository.saveAndFlush(organizationManager);
@@ -97,16 +93,16 @@ public class ProjectControllerIntegrationTest extends BaseIntegrationTest {
     public void testCreateProject() throws Exception
     {
         CreateProjectCommand command = new CreateProjectCommand();
-        command.name = projectName;
-        command.description = projectDescription;
+        command.name = PROJECT_NAME;
+        command.description = PROJECT_DESCRIPTION;
         command.organizationId = organization.getId();
 
-        mockMvc.perform(authenticateAsUser(post("/projects"), organizationManager)
+        mockMvc.perform(post("/projects")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(command))
         ).andExpect(status().isOk());
 
-        assertNotNull(projectRepository.findOneByName(projectName));
+        assertNotNull(projectRepository.findOneByName(PROJECT_NAME));
     }
 
     @Test
@@ -123,12 +119,13 @@ public class ProjectControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     public void testAddParticipant() throws Exception
     {
+        authenticatedUser(organizationManager);
         AddProjectParticipantCommand command = new AddProjectParticipantCommand();
         command.projectId = project.getId();
         command.userId = user.getId();
 
         mockMvc.perform(
-                authenticateAsUser(post("/projects/" + project.getId() + "/participants"), organizationManager)
+                post("/projects/" + project.getId() + "/participants")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(command))
         ).andExpect(status().isOk());
@@ -140,11 +137,12 @@ public class ProjectControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     public void testRemoveParticipant() throws Exception
     {
+        authenticatedUser(organizationManager);
         project.addParticipant(user);
         project = projectRepository.saveAndFlush(project);
 
         mockMvc.perform(
-                authenticateAsUser(delete("/projects/" + project.getId() + "/participants/" + user.getId()), organizationManager)
+                delete("/projects/" + project.getId() + "/participants/" + user.getId())
         ).andExpect(status().isOk());
 
         project = projectRepository.findOne(project.getId());

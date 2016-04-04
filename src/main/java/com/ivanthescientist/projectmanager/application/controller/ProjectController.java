@@ -8,11 +8,10 @@ import com.ivanthescientist.projectmanager.application.command.handler.ProjectCo
 import com.ivanthescientist.projectmanager.domain.model.Project;
 import com.ivanthescientist.projectmanager.domain.model.User;
 import com.ivanthescientist.projectmanager.infrastructure.repository.ProjectRepository;
-import com.ivanthescientist.projectmanager.infrastructure.security.SimpleAuthenticationUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.web.bind.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,12 +26,11 @@ public class ProjectController {
     @Autowired
     ProjectCommandHandler commandHandler;
 
-    @RequestMapping(value = "/projects/{id}", method = RequestMethod.GET)
-    public Project getProject(@PathVariable long id,
-                              @AuthenticationPrincipal SimpleAuthenticationUser auth)
+    @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.GET)
+    public Project getProject(@PathVariable long projectId,
+                              @AuthenticationPrincipal User user)
     {
-        User user = auth.getUser();
-        Project project = repository.findOne(id);
+        Project project = repository.findOne(projectId);
 
         if(!project.getOrganization().isOwner(user) && !project.isParticipant(user)) {
             throw new AccessDeniedException("User doesn't own project");
@@ -49,12 +47,13 @@ public class ProjectController {
     }
 
     @PreAuthorize("hasRole('ROLE_ORGANIZATION_MANAGER')")
-    @RequestMapping(value = "/projects/{id}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.PUT)
     public Project updateProject(@RequestBody UpdateProjectCommand command,
-                                 @AuthenticationPrincipal SimpleAuthenticationUser auth)
+                                 @PathVariable Long projectId,
+                                 @AuthenticationPrincipal User user)
     {
-        User user = auth.getUser();
-        Project project = repository.findOne(command.projectId);
+        Project project = repository.findOne(projectId);
+        command.projectId = projectId;
 
         if(!project.getOrganization().isOwner(user)) {
             throw new AccessDeniedException("User doesn't own project");
@@ -67,10 +66,9 @@ public class ProjectController {
     @RequestMapping(value = "/projects/{projectId}/participants", method = RequestMethod.POST)
     public List<User> addParticipant(@RequestBody AddProjectParticipantCommand command,
                                      @PathVariable Long projectId,
-                                     @AuthenticationPrincipal SimpleAuthenticationUser auth)
+                                     @AuthenticationPrincipal User user)
     {
         Project project = repository.findOne(command.projectId);
-        User user = auth.getUser();
 
         if(!project.getOrganization().isOwner(user)) {
             throw new AccessDeniedException("User doesn't own project");
@@ -84,9 +82,8 @@ public class ProjectController {
     @RequestMapping(value = "/projects/{projectId}/participants/{participantId}", method = RequestMethod.DELETE)
     public List<User> removeParticipant(@PathVariable Long projectId,
                                         @PathVariable Long participantId,
-                                        @AuthenticationPrincipal SimpleAuthenticationUser auth)
+                                        @AuthenticationPrincipal User user)
     {
-        User user = auth.getUser();
         Project project = repository.findOne(projectId);
 
         if(!project.getOrganization().isOwner(user)) {

@@ -1,15 +1,20 @@
 package com.ivanthescientist.projectmanager.domain.model;
 
 import com.ivanthescientist.projectmanager.domain.DomainException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
 @Inheritance
-public class User {
+public class User implements UserDetails {
     @Id
     @Column
     @GeneratedValue
@@ -25,7 +30,7 @@ public class User {
     private HashSet<String> roles = new HashSet<>(0);
 
     public User() {}
-    public User(String email, String passwordHash, String[] roles) {
+    public User(String email, String passwordHash, String... roles) {
         this.email = email;
         this.passwordHash = passwordHash;
         this.roles.addAll(Arrays.asList(roles));
@@ -67,5 +72,42 @@ public class User {
     public int hashCode()
     {
         return (int) this.getId();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return roles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public String getPassword() {
+        return passwordHash;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

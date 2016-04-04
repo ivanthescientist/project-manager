@@ -3,13 +3,14 @@ package com.ivanthescientist.projectmanager;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.orm.jpa.EntityScan;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
+@EnableWebSecurity
 @SpringBootApplication
-@ImportResource("/application-context.xml")
-@EntityScan(basePackages = "com.ivanthescientist.projectmanager.domain.model")
-@EnableJpaRepositories(basePackages = "com.ivanthescientist.projectmanager.infrastructure.repository")
+@ComponentScan("com.ivanthescientist.projectmanager")
 public class Application  {
     public static void main(String[] args) throws Exception
     {
