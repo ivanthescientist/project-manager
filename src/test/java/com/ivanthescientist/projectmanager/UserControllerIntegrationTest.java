@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,10 +29,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class UserControllerIntegrationTest extends BaseIntegrationTest {
 
-    private static final String usernameUser = "user";
-    private static final String passwordUser = "1111";
-    private static final String usernameOrganizationManager = "user_manager";
-    private static final String passwordOrganizationManager = "1111";
+    private static final String USERNAME_USER = "user";
+    private static final String PASSWORD_USER = "1111";
+    private static final String USERNAME_ORGANIZATION_MANAGER = "user_manager";
+    private static final String PASSWORD_ORGANIZATION_MANAGER = "1111";
 
     @Autowired
     UserRepository userRepository;
@@ -59,8 +58,8 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     public void testRegisterValidUser() throws Exception {
         RegisterUserCommand command = new RegisterUserCommand();
-        command.email = usernameUser;
-        command.password = passwordUser;
+        command.username = USERNAME_USER;
+        command.password = PASSWORD_USER;
         command.organizationId = 1L;
 
         mockMvc.perform(
@@ -68,17 +67,17 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
                     .content(toJson(command))
                     .contentType(MediaType.APPLICATION_JSON));
 
-        assertNotNull(userRepository.findOneByEmail(usernameUser));
+        assertNotNull(userRepository.findOneByUsername(USERNAME_USER));
     }
 
     @Test
     public void testRegisterExistingUser() throws Exception {
-        User existingUser = new User(usernameUser, passwordUser, "ROLE_USER");
+        User existingUser = new User(USERNAME_USER, PASSWORD_USER, "ROLE_USER");
         userRepository.saveAndFlush(existingUser);
 
         RegisterUserCommand command = new RegisterUserCommand();
-        command.email = usernameUser;
-        command.password = passwordUser;
+        command.username = USERNAME_USER;
+        command.password = PASSWORD_USER;
         command.organizationId = 1L;
 
         mockMvc.perform(
@@ -91,8 +90,8 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     public void testRegisterOrganizationOwner() throws Exception {
         RegisterOrganizationOwnerCommand command = new RegisterOrganizationOwnerCommand();
-        command.email = usernameOrganizationManager;
-        command.password = passwordOrganizationManager;
+        command.username = USERNAME_ORGANIZATION_MANAGER;
+        command.password = PASSWORD_ORGANIZATION_MANAGER;
 
         mockMvc.perform(
                 post("/users/organization_owners")
@@ -101,7 +100,7 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 
-        User user = userRepository.findOneByEmail(command.email);
+        User user = userRepository.findOneByUsername(command.username);
         assertNotNull(user);
         assertFalse(organizationRepository.findAll().isEmpty());
     }

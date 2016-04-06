@@ -16,22 +16,22 @@ public class Project implements SecuredEntity {
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.AUTO)
-    protected long id;
+    private long id;
 
     @Column
-    protected String name;
+    private String name;
 
     @Column
-    protected String description;
+    private String description;
 
     @ManyToOne(targetEntity = Organization.class)
-    protected Organization organization;
+    private Organization organization;
 
     @OneToMany(targetEntity = User.class, fetch = FetchType.EAGER)
-    protected List<User> participants = new ArrayList<>();
+    private List<User> participants = new ArrayList<>();
 
     @OneToMany(targetEntity = Task.class, mappedBy = "project")
-    protected List<Task> tasks = new ArrayList<>();
+    private List<Task> tasks = new ArrayList<>();
 
     public Project()
     {

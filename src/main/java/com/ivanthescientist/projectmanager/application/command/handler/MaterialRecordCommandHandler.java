@@ -18,8 +18,4 @@ public class MaterialRecordCommandHandler {
 
     @Autowired
     TaskRepository taskRepository;
-
-    @Autowired
-    MaterialRecordRepository materialRecordRepository;
-
 }

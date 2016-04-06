@@ -1,6 +1,5 @@
 package com.ivanthescientist.projectmanager.domain.model;
 
-import com.ivanthescientist.projectmanager.domain.DomainException;
 import com.ivanthescientist.projectmanager.domain.SecuredEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,7 +21,7 @@ public class User implements UserDetails, SecuredEntity {
     private long id;
 
     @Column(unique = true)
-    private String email;
+    private String username;
 
     @Column
     private String passwordHash;
@@ -31,26 +30,14 @@ public class User implements UserDetails, SecuredEntity {
     private HashSet<String> roles = new HashSet<>(0);
 
     public User() {}
-    public User(String email, String passwordHash, String... roles) {
-        this.email = email;
+    public User(String username, String passwordHash, String... roles) {
+        this.username = username;
         this.passwordHash = passwordHash;
         this.roles.addAll(Arrays.asList(roles));
     }
 
     public long getId() {
         return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public HashSet<String> getRoles() {
-        return roles;
     }
 
     @Override
@@ -89,7 +76,7 @@ public class User implements UserDetails, SecuredEntity {
 
     @Override
     public String getUsername() {
-        return this.email;
+        return this.username;
     }
 
     @Override

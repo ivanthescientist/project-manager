@@ -12,28 +12,22 @@ public class Task implements SecuredEntity {
     @Id
     @Column
     @GeneratedValue
-    protected long id;
+    private long id;
 
     @Column
-    protected String name;
+    private String name;
 
     @Column
-    protected String description;
+    private String description;
 
     @ManyToOne(targetEntity = Project.class)
-    protected Project project;
+    private Project project;
 
     @ManyToOne(targetEntity = User.class)
-    protected User assignee;
+    private User assignee;
 
     @Column
-    protected TaskStatus status;
-
-    @OneToMany(targetEntity = MaterialRecord.class, mappedBy = "task")
-    protected List<MaterialRecord> materialRecords;
-
-    @OneToMany(targetEntity = TimeRecord.class, mappedBy = "task")
-    protected List<TimeRecord> timeRecords;
+    private TaskStatus status;
 
     public Task() {}
     public Task(String name, String description, Project project)

@@ -1,5 +1,6 @@
 package com.ivanthescientist.projectmanager.application.controller;
 
+import com.ivanthescientist.projectmanager.application.command.CommandHandlingContext;
 import com.ivanthescientist.projectmanager.application.command.RegisterOrganizationOwnerCommand;
 import com.ivanthescientist.projectmanager.application.command.RegisterUserCommand;
 import com.ivanthescientist.projectmanager.application.command.handler.UserCommandHandler;
@@ -15,12 +16,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     @Autowired
-    protected UserCommandHandler userCommandHandler;
+    private CommandHandlingContext commandContext;
 
     @RequestMapping(path = "/users", method = RequestMethod.POST)
-    public User register(@RequestBody RegisterUserCommand command)
+    public User register(@RequestBody RegisterUserCommand command) throws Exception
     {
-        return userCommandHandler.registerUser(command);
+        return (User) commandContext.handleCommand(command);
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -31,9 +32,9 @@ public class UserController {
     }
 
     @RequestMapping(path = "/users/organization_owners", method = RequestMethod.POST)
-    public User registerOrganizationOwner(@RequestBody RegisterOrganizationOwnerCommand command)
+    public User registerOrganizationOwner(@RequestBody RegisterOrganizationOwnerCommand command) throws Exception
     {
-        return userCommandHandler.registerOrganizationOwner(command);
+        return (User) commandContext.handleCommand(command);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)

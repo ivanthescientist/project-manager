@@ -27,16 +27,16 @@ public class SimpleAuthenticationProvider implements org.springframework.securit
         Assert.notNull(authentication.getPrincipal());
         Assert.notNull(authentication.getCredentials());
 
-        String email = (String)authentication.getPrincipal();
+        String username = (String)authentication.getPrincipal();
         String password = (String)authentication.getCredentials();
 
-        if(email.equals("ivan") && password.equals("1111")) {
+        if(username.equals("ivan") && password.equals("1111")) {
             User user = new User("ivan", "1111", "ROLE_USER", "ROLE_SOLUTION_ADMIN");
 
             return new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
         }
 
-        User user = userRepository.findOneByEmail(email);
+        User user = userRepository.findOneByUsername(username);
 
         if(!passwordEncoder.matches(password, user.getPassword())) {
             throw new BadCredentialsException("Passwords don't match");

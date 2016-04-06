@@ -18,8 +18,4 @@ public class TimeRecordCommandHandler {
 
     @Autowired
     TaskRepository taskRepository;
-
-    @Autowired
-    TimeRecordRepository timeRecordRepository;
-
 }
