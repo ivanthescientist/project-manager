@@ -30,9 +30,6 @@ public class Project implements SecuredEntity {
     @OneToMany(targetEntity = User.class, fetch = FetchType.EAGER)
     private List<User> participants = new ArrayList<>();
 
-    @OneToMany(targetEntity = Task.class, mappedBy = "project")
-    private List<Task> tasks = new ArrayList<>();
-
     public Project()
     {
     }
@@ -62,11 +59,6 @@ public class Project implements SecuredEntity {
         return description;
     }
 
-    public List<Task> getTasks()
-    {
-        return tasks;
-    }
-
     public List<User> getParticipants()
     {
         return participants;
@@ -94,15 +86,6 @@ public class Project implements SecuredEntity {
     {
         if(!this.participants.contains(user)) {
             throw new DomainException("Not a participant");
-        }
-
-        boolean hasTasks = !this.tasks.stream()
-                .filter(task -> task.getAssignee().equals(user) && task.isInProgress())
-                .collect(Collectors.toList())
-                .isEmpty();
-
-        if(hasTasks) {
-            throw new DomainException("User has ongoing tasks");
         }
 
         participants.remove(user);

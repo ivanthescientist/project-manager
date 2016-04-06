@@ -1,10 +1,7 @@
 package com.ivanthescientist.projectmanager.application.command.handler;
 
 
-import com.ivanthescientist.projectmanager.application.command.AddProjectParticipantCommand;
-import com.ivanthescientist.projectmanager.application.command.CreateProjectCommand;
-import com.ivanthescientist.projectmanager.application.command.RemoveProjectParticipantCommand;
-import com.ivanthescientist.projectmanager.application.command.UpdateProjectCommand;
+import com.ivanthescientist.projectmanager.application.command.*;
 import com.ivanthescientist.projectmanager.domain.model.Organization;
 import com.ivanthescientist.projectmanager.domain.model.Project;
 import com.ivanthescientist.projectmanager.domain.model.User;
@@ -16,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@CommandHandler
 @Component
 public class ProjectCommandHandler {
 
@@ -28,6 +26,7 @@ public class ProjectCommandHandler {
     @Autowired
     ProjectRepository projectRepository;
 
+    @CommandHandler(CreateProjectCommand.class)
     public Project createProject(CreateProjectCommand command)
     {
         Organization organization = organizationRepository.findOne(command.organizationId);
@@ -38,6 +37,7 @@ public class ProjectCommandHandler {
         return project;
     }
 
+    @CommandHandler(AddProjectParticipantCommand.class)
     public List<User> addParticipant(AddProjectParticipantCommand command)
     {
         Project project = projectRepository.findOne(command.projectId);
@@ -50,6 +50,7 @@ public class ProjectCommandHandler {
         return project.getParticipants();
     }
 
+    @CommandHandler(RemoveProjectParticipantCommand.class)
     public List<User> removeParticipant(RemoveProjectParticipantCommand command)
     {
         Project project = projectRepository.findOne(command.projectId);
@@ -62,6 +63,7 @@ public class ProjectCommandHandler {
         return project.getParticipants();
     }
 
+    @CommandHandler(UpdateProjectCommand.class)
     public Project updateProjectInfo(UpdateProjectCommand command)
     {
         Project project = projectRepository.findOne(command.projectId);

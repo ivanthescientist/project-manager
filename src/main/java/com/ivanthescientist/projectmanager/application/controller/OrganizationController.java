@@ -1,10 +1,6 @@
 package com.ivanthescientist.projectmanager.application.controller;
 
-import com.ivanthescientist.projectmanager.application.command.AddMemberCommand;
-import com.ivanthescientist.projectmanager.application.command.CreateOrganizationCommand;
-import com.ivanthescientist.projectmanager.application.command.RemoveMemberCommand;
-import com.ivanthescientist.projectmanager.application.command.UpdateOrganizationCommand;
-import com.ivanthescientist.projectmanager.application.command.handler.OrganizationCommandHandler;
+import com.ivanthescientist.projectmanager.application.command.*;
 import com.ivanthescientist.projectmanager.domain.DomainException;
 import com.ivanthescientist.projectmanager.domain.model.Organization;
 import com.ivanthescientist.projectmanager.domain.model.User;
@@ -25,7 +21,7 @@ import java.util.List;
 public class OrganizationController {
 
     @Autowired
-    OrganizationCommandHandler commandHandler;
+    CommandHandlingContext commandHandlingContext;
 
     @Autowired
     OrganizationRepository repository;
@@ -40,11 +36,10 @@ public class OrganizationController {
     @DomainSecurity
     @RequestMapping(value = "/organizations", method = RequestMethod.POST)
     public Organization createOrganization(@RequestBody CreateOrganizationCommand command,
-                                           @AuthenticationPrincipal User user)
-    {
+                                           @AuthenticationPrincipal User user) throws Exception {
         command.ownerId = user.getId();
 
-        return commandHandler.createOrganization(command);
+        return (Organization) commandHandlingContext.handleCommand(command);
     }
 
     @DomainSecurity
@@ -79,8 +74,7 @@ public class OrganizationController {
     @RequestMapping(value = "/organizations/{organizationId}/members", method = RequestMethod.POST)
     public List<User> addMember(@RequestBody AddMemberCommand command,
                                 @PathVariable Long organizationId,
-                                @AuthenticationPrincipal User user)
-    {
+                                @AuthenticationPrincipal User user) throws Exception {
         Organization organization = repository.findOne(organizationId);
 
         if(!organization.isOwner(user)) {
@@ -88,15 +82,14 @@ public class OrganizationController {
         }
 
         command.organizationId = organizationId;
-        return commandHandler.addMember(command);
+        return (List<User>) commandHandlingContext.handleCommand(command);
     }
 
     @DomainSecurity
     @RequestMapping(value = "/organizations/{organizationId}/members/{memberId}", method = RequestMethod.DELETE)
     public List<User> removeMember(@PathVariable Long organizationId,
                                    @PathVariable Long memberId,
-                                   @AuthenticationPrincipal User user)
-    {
+                                   @AuthenticationPrincipal User user) throws Exception {
         Organization organization = repository.findOne(organizationId);
 
         if(!organization.isOwner(user)) {
@@ -106,7 +99,7 @@ public class OrganizationController {
         RemoveMemberCommand command = new RemoveMemberCommand();
         command.organizationId = organizationId;
         command.userId = memberId;
-        return commandHandler.removeMember(command);
+        return (List<User>) commandHandlingContext.handleCommand(command);
     }
 
     @DomainSecurity
@@ -114,8 +107,7 @@ public class OrganizationController {
     @RequestMapping(value = "/organizations/{organizationId}", method = RequestMethod.PUT)
     public Organization updateInfo(@PathVariable Long organizationId,
                                    @RequestBody UpdateOrganizationCommand command,
-                                   @AuthenticationPrincipal User user)
-    {
+                                   @AuthenticationPrincipal User user) throws Exception {
 
         Organization organization = repository.findOne(organizationId);
 
@@ -125,7 +117,7 @@ public class OrganizationController {
 
         command.organizationId = organizationId;
 
-        return commandHandler.updateOrganization(command);
+        return (Organization) commandHandlingContext.handleCommand(command);
     }
 
     @ExceptionHandler(value = DomainException.class)

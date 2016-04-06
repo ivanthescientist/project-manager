@@ -1,10 +1,6 @@
 package com.ivanthescientist.projectmanager.application.controller;
 
-import com.ivanthescientist.projectmanager.application.command.AddProjectParticipantCommand;
-import com.ivanthescientist.projectmanager.application.command.CreateProjectCommand;
-import com.ivanthescientist.projectmanager.application.command.RemoveProjectParticipantCommand;
-import com.ivanthescientist.projectmanager.application.command.UpdateProjectCommand;
-import com.ivanthescientist.projectmanager.application.command.handler.ProjectCommandHandler;
+import com.ivanthescientist.projectmanager.application.command.*;
 import com.ivanthescientist.projectmanager.domain.model.Project;
 import com.ivanthescientist.projectmanager.domain.model.User;
 import com.ivanthescientist.projectmanager.infrastructure.repository.ProjectRepository;
@@ -24,7 +20,7 @@ public class ProjectController {
     ProjectRepository repository;
 
     @Autowired
-    ProjectCommandHandler commandHandler;
+    CommandHandlingContext commandHandlingContext;
 
     @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.GET)
     public Project getProject(@PathVariable long projectId,
@@ -41,16 +37,16 @@ public class ProjectController {
 
     @PreAuthorize("hasRole('ROLE_ORGANIZATION_MANAGER')")
     @RequestMapping(value = "/projects", method = RequestMethod.POST)
-    public Project createProject(@RequestBody CreateProjectCommand command)
+    public Project createProject(@RequestBody CreateProjectCommand command) throws Exception
     {
-        return commandHandler.createProject(command);
+        return (Project) commandHandlingContext.handleCommand(command);
     }
 
     @PreAuthorize("hasRole('ROLE_ORGANIZATION_MANAGER')")
     @RequestMapping(value = "/projects/{projectId}", method = RequestMethod.PUT)
     public Project updateProject(@RequestBody UpdateProjectCommand command,
                                  @PathVariable Long projectId,
-                                 @AuthenticationPrincipal User user)
+                                 @AuthenticationPrincipal User user) throws Exception
     {
         Project project = repository.findOne(projectId);
         command.projectId = projectId;
@@ -59,14 +55,14 @@ public class ProjectController {
             throw new AccessDeniedException("User doesn't own project");
         }
 
-        return commandHandler.updateProjectInfo(command);
+        return (Project) commandHandlingContext.handleCommand(command);
     }
 
     @PreAuthorize("hasRole('ROLE_ORGANIZATION_MANAGER')")
     @RequestMapping(value = "/projects/{projectId}/participants", method = RequestMethod.POST)
     public List<User> addParticipant(@RequestBody AddProjectParticipantCommand command,
                                      @PathVariable Long projectId,
-                                     @AuthenticationPrincipal User user)
+                                     @AuthenticationPrincipal User user) throws Exception
     {
         Project project = repository.findOne(command.projectId);
 
@@ -75,14 +71,14 @@ public class ProjectController {
         }
 
         command.projectId = projectId;
-        return commandHandler.addParticipant(command);
+        return (List<User>) commandHandlingContext.handleCommand(command);
     }
 
     @PreAuthorize("hasRole('ROLE_ORGANIZATION_MANAGER')")
     @RequestMapping(value = "/projects/{projectId}/participants/{participantId}", method = RequestMethod.DELETE)
     public List<User> removeParticipant(@PathVariable Long projectId,
                                         @PathVariable Long participantId,
-                                        @AuthenticationPrincipal User user)
+                                        @AuthenticationPrincipal User user) throws Exception
     {
         Project project = repository.findOne(projectId);
 
@@ -94,6 +90,6 @@ public class ProjectController {
         command.projectId = projectId;
         command.userId = participantId;
 
-        return commandHandler.removeParticipant(command);
+        return (List<User>) commandHandlingContext.handleCommand(command);
     }
 }
