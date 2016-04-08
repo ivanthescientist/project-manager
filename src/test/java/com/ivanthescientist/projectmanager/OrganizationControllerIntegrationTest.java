@@ -95,10 +95,11 @@ public class OrganizationControllerIntegrationTest extends BaseIntegrationTest {
         CreateOrganizationCommand command = new CreateOrganizationCommand();
         command.name = organizationName;
         command.description = organizationDescription;
+        command.ownerId = organizationManager.getId();
 
         mockMvc
                 .perform(
-                        post("/organizations/")
+                        post("/api/organizations/")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(toJson(command))
                 )
@@ -118,7 +119,7 @@ public class OrganizationControllerIntegrationTest extends BaseIntegrationTest {
         command.description = expectedDescription;
 
         mockMvc
-                .perform(put("/organizations/" + organization.getId())
+                .perform(put("/api/organizations/" + organization.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(command))
                 ).andExpect(status().isOk())
@@ -136,7 +137,7 @@ public class OrganizationControllerIntegrationTest extends BaseIntegrationTest {
         command.userId = user.getId();
 
         mockMvc
-                .perform(post("/organizations/" + organization.getId() + "/members",
+                .perform(post("/api/organizations/" + organization.getId() + "/members",
                         organizationManager)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(toJson(command))
@@ -155,7 +156,7 @@ public class OrganizationControllerIntegrationTest extends BaseIntegrationTest {
         organizationRepository.saveAndFlush(organization);
 
         mockMvc
-                .perform(delete("/organizations/" + organization.getId()
+                .perform(delete("/api/organizations/" + organization.getId()
                         + "/members/" + user.getId())
                 ).andExpect(status().isOk());
 
@@ -169,7 +170,7 @@ public class OrganizationControllerIntegrationTest extends BaseIntegrationTest {
         authenticatedUser(organizationManager);
 
         mockMvc
-                .perform(delete("/organizations/" + organization.getId()
+                .perform(delete("/api/organizations/" + organization.getId()
                         + "/members/" + user.getId())
                 ).andExpect(status().isBadRequest());
     }

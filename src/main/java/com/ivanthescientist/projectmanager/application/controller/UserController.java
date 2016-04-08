@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+@RequestMapping("/api")
 @RestController
 public class UserController {
 
@@ -23,7 +24,6 @@ public class UserController {
         return (User) commandHandlingContext.handleCommand(command);
     }
 
-    @PreAuthorize("isAuthenticated()")
     @RequestMapping(path = "/users/me", method = RequestMethod.GET)
     public User currentUser(@AuthenticationPrincipal User user)
     {

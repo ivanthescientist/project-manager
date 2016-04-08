@@ -15,8 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
-@PreAuthorize("hasRole('ROLE_USER')")
+@RequestMapping("/api")
 @RestController
 public class OrganizationController {
 
@@ -26,95 +25,54 @@ public class OrganizationController {
     @Autowired
     OrganizationRepository repository;
 
-    @DomainSecurity
-    @PreAuthorize("hasRole('ROLE_SOLUTION_ADMIN')")
     @RequestMapping(value = "/organizations", method = RequestMethod.GET)
     public List<Organization> getOrganizations() {
         return repository.findAll();
     }
 
-    @DomainSecurity
     @RequestMapping(value = "/organizations", method = RequestMethod.POST)
-    public Organization createOrganization(@RequestBody CreateOrganizationCommand command,
-                                           @AuthenticationPrincipal User user) throws Exception {
-        command.ownerId = user.getId();
+    public Organization createOrganization(@RequestBody CreateOrganizationCommand command) throws Exception {
 
         return (Organization) commandHandlingContext.handleCommand(command);
     }
 
-    @DomainSecurity
     @RequestMapping(value = "/organizations/{id}")
-    public Organization getOrganization(@PathVariable Long id,
-                                        @AuthenticationPrincipal User user)
+    public Organization getOrganization(@PathVariable Long id)
     {
         Organization organization = repository.findOne(id);
-
-        if(!organization.isMember(user) && !organization.isOwner(user)) {
-            throw new AccessDeniedException("Access Violation");
-        }
 
         return organization;
     }
 
-    @DomainSecurity
     @RequestMapping(value = "/organizations/{organizationId}/members", method = RequestMethod.GET)
-    public List<User> getMembers(@PathVariable Long organizationId,
-                                 @AuthenticationPrincipal User user)
+    public List<User> getMembers(@PathVariable Long organizationId)
     {
         Organization organization = repository.findOne(organizationId);
-
-        if(!organization.isMember(user) && !organization.isOwner(user)) {
-            throw new AccessDeniedException("Access Violation");
-        }
 
         return organization.getMembers();
     }
 
-    @DomainSecurity
     @RequestMapping(value = "/organizations/{organizationId}/members", method = RequestMethod.POST)
     public List<User> addMember(@RequestBody AddMemberCommand command,
-                                @PathVariable Long organizationId,
-                                @AuthenticationPrincipal User user) throws Exception {
+                                @PathVariable Long organizationId) throws Exception {
         Organization organization = repository.findOne(organizationId);
-
-        if(!organization.isOwner(user)) {
-            throw new AccessDeniedException("Access Violation");
-        }
 
         command.organizationId = organizationId;
         return (List<User>) commandHandlingContext.handleCommand(command);
     }
 
-    @DomainSecurity
     @RequestMapping(value = "/organizations/{organizationId}/members/{memberId}", method = RequestMethod.DELETE)
     public List<User> removeMember(@PathVariable Long organizationId,
-                                   @PathVariable Long memberId,
-                                   @AuthenticationPrincipal User user) throws Exception {
-        Organization organization = repository.findOne(organizationId);
-
-        if(!organization.isOwner(user)) {
-            throw new AccessDeniedException("Access Violation");
-        }
-
+                                   @PathVariable Long memberId) throws Exception {
         RemoveMemberCommand command = new RemoveMemberCommand();
         command.organizationId = organizationId;
         command.userId = memberId;
         return (List<User>) commandHandlingContext.handleCommand(command);
     }
 
-    @DomainSecurity
-    @PreAuthorize("hasRole('ROLE_ORGANIZATION_ADMIN')")
     @RequestMapping(value = "/organizations/{organizationId}", method = RequestMethod.PUT)
     public Organization updateInfo(@PathVariable Long organizationId,
-                                   @RequestBody UpdateOrganizationCommand command,
-                                   @AuthenticationPrincipal User user) throws Exception {
-
-        Organization organization = repository.findOne(organizationId);
-
-        if(!organization.isOwner(user)) {
-            throw new AccessDeniedException("Access Violation");
-        }
-
+                                   @RequestBody UpdateOrganizationCommand command) throws Exception {
         command.organizationId = organizationId;
 
         return (Organization) commandHandlingContext.handleCommand(command);

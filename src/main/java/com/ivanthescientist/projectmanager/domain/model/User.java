@@ -1,5 +1,6 @@
 package com.ivanthescientist.projectmanager.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ivanthescientist.projectmanager.domain.SecuredEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -62,6 +63,7 @@ public class User implements UserDetails, SecuredEntity {
         return (int) this.getId();
     }
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
@@ -69,6 +71,7 @@ public class User implements UserDetails, SecuredEntity {
                 .collect(Collectors.toSet());
     }
 
+    @JsonIgnore
     @Override
     public String getPassword() {
         return passwordHash;
@@ -79,23 +82,31 @@ public class User implements UserDetails, SecuredEntity {
         return this.username;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
+    @JsonIgnore
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public HashSet<String> getRoles() {
+        return roles;
     }
 }

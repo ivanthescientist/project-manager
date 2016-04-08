@@ -97,7 +97,7 @@ public class ProjectControllerIntegrationTest extends BaseIntegrationTest {
         command.description = PROJECT_DESCRIPTION;
         command.organizationId = organization.getId();
 
-        mockMvc.perform(post("/projects")
+        mockMvc.perform(post("/api/projects")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(command))
         ).andExpect(status().isOk());
@@ -125,7 +125,7 @@ public class ProjectControllerIntegrationTest extends BaseIntegrationTest {
         command.userId = user.getId();
 
         mockMvc.perform(
-                post("/projects/" + project.getId() + "/participants")
+                post("/api/projects/" + project.getId() + "/participants")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(toJson(command))
         ).andExpect(status().isOk());
@@ -142,7 +142,7 @@ public class ProjectControllerIntegrationTest extends BaseIntegrationTest {
         project = projectRepository.saveAndFlush(project);
 
         mockMvc.perform(
-                delete("/projects/" + project.getId() + "/participants/" + user.getId())
+                delete("/api/projects/" + project.getId() + "/participants/" + user.getId())
         ).andExpect(status().isOk());
 
         project = projectRepository.findOne(project.getId());

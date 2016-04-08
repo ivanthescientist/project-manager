@@ -63,7 +63,7 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
         command.organizationId = 1L;
 
         mockMvc.perform(
-                post("/users")
+                post("/api/users")
                     .content(toJson(command))
                     .contentType(MediaType.APPLICATION_JSON));
 
@@ -81,7 +81,7 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
         command.organizationId = 1L;
 
         mockMvc.perform(
-                post("/users")
+                post("/api/users")
                         .content(toJson(command))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -94,7 +94,7 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
         command.password = PASSWORD_ORGANIZATION_MANAGER;
 
         mockMvc.perform(
-                post("/users/organization_owners")
+                post("/api/users/organization_owners")
                         .content(toJson(command))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

@@ -26,9 +26,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable();
-        //http.addFilterBefore(simpleAuthenticationFilter, BasicAuthenticationFilter.class);
-        //http.servletApi().and().headers().cacheControl().and();
+        http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.addFilterBefore(simpleAuthenticationFilter, BasicAuthenticationFilter.class);
     }
 
     @Override
