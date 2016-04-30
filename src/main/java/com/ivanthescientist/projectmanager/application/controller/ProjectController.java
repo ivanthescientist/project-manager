@@ -58,7 +58,6 @@ public class ProjectController {
         return (List<User>) commandHandlingContext.handleCommand(command);
     }
 
-    @PreAuthorize("hasRole('ROLE_ORGANIZATION_MANAGER')")
     @RequestMapping(value = "/projects/{projectId}/participants/{participantId}", method = RequestMethod.DELETE)
     public List<User> removeParticipant(@PathVariable Long projectId,
                                         @PathVariable Long participantId) throws Exception

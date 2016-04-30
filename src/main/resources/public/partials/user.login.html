@@ -1,5 +1,5 @@
-<div>
-    <form>
+<div class="container">
+    <form ng-hide="currentUser != null">
         <div class="form-group">
             <label for="username">Username: </label>
             <input type="text" id="username" class="form-control" ng-model="username">
@@ -9,5 +9,8 @@
             <input type="password" id="password" class="form-control" ng-model="password">
         </div>
         <input type="submit" class="btn" ng-click="logIn()">
+    </form>
+    <form ng-hide="currentUser == null">
+        <button class="btn" ng-click="logOut()">Log Out</button>
     </form>
 </div>

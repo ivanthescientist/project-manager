@@ -94,7 +94,7 @@ public class UserControllerIntegrationTest extends BaseIntegrationTest {
         command.password = PASSWORD_ORGANIZATION_MANAGER;
 
         mockMvc.perform(
-                post("/api/users/organization_owners")
+                post("/api/users/organization-owners")
                         .content(toJson(command))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

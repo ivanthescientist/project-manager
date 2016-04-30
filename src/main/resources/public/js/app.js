@@ -12,6 +12,7 @@
                     var defer = $q.defer();
                     if(rejection.status === 401) {
                         console.log("unauthenticated");
+                        window.location = "#/login";
                     }
                     if(rejection.status === 400) {
                         console.log("bad request");
@@ -44,7 +45,7 @@
             };
         });
 
-        $urlRouterProvider.otherwise('organizationList');
+        $urlRouterProvider.otherwise('projects');
 
         $stateProvider.state('organizationList', {
             url: '/organizations',
@@ -52,10 +53,34 @@
             controller: 'organizationListController'
         });
 
+        $stateProvider.state('organizationCreate', {
+            url: '/organizations/new',
+            templateUrl: '/partials/organization.create.html',
+            controller: 'organizationCreateController'
+        });
+
+        $stateProvider.state('organizationEdit', {
+            url: '/organizations/:organizationId',
+            templateUrl: '/partials/organization.edit.html',
+            controller: 'organizationEditController'
+        });
+
         $stateProvider.state('projectList', {
             url: '/projects',
             templateUrl: '/partials/project.list.html',
             controller: 'projectListController'
+        });
+
+        $stateProvider.state('projectCreate', {
+            url: '/projects/new',
+            templateUrl: '/partials/project.create.html',
+            controller: 'projectCreateController'
+        });
+
+        $stateProvider.state('projectEdit', {
+            url: '/projects/:projectId',
+            templateUrl: '/partials/project.edit.html',
+            controller: 'projectEditController'
         });
 
         $stateProvider.state('userList', {
